@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 
@@ -27,7 +28,11 @@ namespace DecimalRound
         /// <returns></returns>
         public static decimal CurrencySum(this IEnumerable<decimal?> source)
         {
-            return source.Sum(number => ArithmeticSymmetricalRound(number.Value, GetCurrencyDecimalDigits()));
+            return source.Sum(number =>
+            {
+                Debug.Assert(number != null, $"number != null");
+                return ArithmeticSymmetricalRound(number.Value, GetCurrencyDecimalDigits());
+            });
         }
 
         /// <summary>
@@ -60,7 +65,7 @@ namespace DecimalRound
         {
             var factor = Convert.ToDecimal(Math.Pow(10, decimals));
             var sign = Math.Sign(source);
-            return Decimal.Truncate(source * factor + 0.5m * sign) / factor;
+            return decimal.Truncate(source * factor + 0.5m * sign) / factor;
         }
 
         /// <summary>
@@ -73,13 +78,9 @@ namespace DecimalRound
         {
             var factor = Convert.ToDecimal(Math.Pow(10, decimals));
 
-            if (source.HasValue)
-            {
-                var sign = Math.Sign(source.Value);
-                return Decimal.Truncate(source.Value * factor + 0.5m * sign) / factor;
-            }
-
-            return 0M;
+            if (!source.HasValue) return 0M;
+            var sign = Math.Sign(source.Value);
+            return decimal.Truncate(source.Value * factor + 0.5m * sign) / factor;
         }
 
         /// <summary>
@@ -90,7 +91,7 @@ namespace DecimalRound
         /// <returns></returns>
         public static decimal BankersRound(decimal source, int decimals)
         {
-            return Decimal.Round(source, decimals);
+            return decimal.Round(source, decimals);
         }
 
         /// <summary>
@@ -101,7 +102,7 @@ namespace DecimalRound
         /// <returns></returns>
         public static decimal MidpointRoundingAwayFromZero(decimal source, int decimals)
         {
-            return Decimal.Round(source, decimals, MidpointRounding.AwayFromZero);
+            return decimal.Round(source, decimals, MidpointRounding.AwayFromZero);
         }
     }
 }
